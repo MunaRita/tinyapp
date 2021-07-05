@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/MunaRita/tinyapp/issues"
   },
-  "homepage": "https://github.com/MunaRita/tinyapp#readme"
+  "homepage": "https://github.com/MunaRita/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
