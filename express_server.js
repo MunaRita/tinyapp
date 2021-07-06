@@ -12,7 +12,7 @@ function generateRandomString() {
   return key;
 }
 
-app.set("view engine", "ejs");  // tells the Express app to use EJS as its templating engine. 
+app.set("view engine", "ejs");  // tells the Express app to use EJS as its templating engine.
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -52,26 +52,35 @@ app.post("/urls", (req, res) => {
   //res.send("Ok");         // Respond with 'Ok' (we will replace this)
 });
 
-  // Redirect any request to "/u/:shortURL" to its longURL
+// Redirect any request to "/u/:shortURL" to its longURL
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL];
-  //console.log("longURL:", longURL); 
-  res.redirect(longURL);
+  if (!longURL) {
+    //res.sendStatus();
+    res.send("Sorry does not exist");
+    
+  } else {
+    //console.log("longURL:", longURL);
+    res.redirect(longURL);
+  }
+  
 });
 
 
 /* Server looks up the longURL from the urlDatabase, passes the short and long URLs to the template,
  generates the html then sends the html back to the browser*/
-app.get('/urls/:shortURL', function (req, res) {
+app.get('/urls/:shortURL', function(req, res) {
   const shortURL = req.params.shortURL;
+  
+ 
   //console.log(urlDatabase[shortURL]);
-  const templateVars = {shortURL: shortURL, longURL: urlDatabase[shortURL] }
+  const templateVars = {shortURL: shortURL, longURL: urlDatabase[shortURL] };
   // console.log(req.params);
   //console.log(urlDatabase);
   //res.send(req.params);
 
-  res.render("urls_show", templateVars); // bowserr renders the html received from the server
+  res.render("urls_show", templateVars); // browser renders the html received from the server
 });
 
 
