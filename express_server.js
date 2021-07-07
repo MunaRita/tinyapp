@@ -88,6 +88,14 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
+// Delete
+
+app.post("/urls/:shortURL/delete", (req, res) => {
+  const key = req.params.shortURL;
+  delete urlDatabase[key];
+
+  res.redirect("/urls")
+})
 
 
 // Will a variable that is created in one request be accessible in another?
