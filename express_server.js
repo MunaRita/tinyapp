@@ -41,22 +41,24 @@ app.get("/urls/new", (req, res) => {
 
 app.post("urls/new", (req, res) => {
   res.redirect("urls");
-})
+});
 
 app.post("/urls", (req, res) => {
   console.log(req.body);  // Log the POST request body to the console
 
   // Server generate a new shortURL and saves it to the urlDatabase.
   let key = generateRandomString();
-  urlDatabase[key] = {  
+  urlDatabase[key] = req.body.longURL
+  // urlDatabase[key] = {
     
-    longURL: req.body.longURL,
-    shortURL: key
-  };
-  //console.log(urlDatabase);
+  //   longURL: req.body.longURL,
+  //   shortURL: key
+  // };
+  console.log("urlDatabase:", urlDatabase);
   
 
   // Redirect After Form Submission
+  //res.redirect("/urls");
   res.redirect(`/urls/${key}`);
 
   //res.send("Ok");         // Respond with 'Ok' (we will replace this)
@@ -98,7 +100,7 @@ app.post('/urls/:shortURL', (req, res) => {
   // console.log("this is body", req.body);
   urlDatabase[req.params.shortURL] = req.body.longURL;
   res.redirect('/urls');
-})
+});
 
 
 // app.get("/hello", (req, res) => {
@@ -112,8 +114,8 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   console.log(key);
   delete urlDatabase[key];
 
-  res.redirect("/urls")
-})
+  res.redirect("/urls");
+});
 
 
 // Will a variable that is created in one request be accessible in another?
