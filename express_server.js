@@ -33,8 +33,14 @@ const users = {
 app.set("view engine", "ejs");  // tells the Express app to use EJS as its templating engine.
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com",
+  "b2xVn2": {
+    longURL: "http://www.lighthouselabs.ca",
+    userID: "AJ48lW"
+  },
+  "9sm5xK": {
+    longURL: "http://www.google.com",
+    userID: "Aj48lW"
+  }
 };
 
 // app.get("/", (req, res) => {
@@ -87,7 +93,10 @@ const currentUser = req.cookies["user_id"];
 if(currentUser) {
   // Server generate a new shortURL and saves it to the urlDatabase.
   let key = generateRandomString();
-  urlDatabase[key] = req.body.longURL
+  urlDatabase[key] = {
+    longURL: req.body.longURL,
+    userID: currentUser
+  };
   // urlDatabase[key] = {
     
   //   longURL: req.body.longURL,
@@ -111,7 +120,7 @@ if(currentUser) {
 // Redirect any request to "/u/:shortURL" to its longURL
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL];
+  const longURL = urlDatabase[shortURL].longURL;
   if (!longURL) {
     //res.sendStatus();
     res.send("Sorry does not exist");
@@ -140,7 +149,7 @@ app.get('/urls/:shortURL', function(req, res) {
   //const email = req.body.email;
   const templateVars = {
     shortURL: shortURL, 
-    longURL: urlDatabase[shortURL],
+    longURL: urlDatabase[shortURL].longURL,
     //urls: urlDatabase,
     registeredUser: users[currentUser],
     users:users,
@@ -153,7 +162,13 @@ app.get('/urls/:shortURL', function(req, res) {
 app.post('/urls/:shortURL', (req, res) => {
   // console.log("this is param", req.params.shortURL);
   // console.log("this is body", req.body);
-  urlDatabase[req.params.shortURL] = req.body.longURL;
+  const currentUser = req.cookies["user_id"];
+
+  urlDatabase[req.params.shortURL] = {
+    longURL: req.body.longURL,
+    userID: currentUser
+  };
+
   res.redirect('/urls');
 });
 
