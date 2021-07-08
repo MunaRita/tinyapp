@@ -1,6 +1,6 @@
 const express = require("express");
 const  cookieParser = require('cookie-parser');
-const { emailLookUp } = require('./helpers');
+const { emailLookUp,  urlsForUser } = require('./helpers');
 const app = express();
 app.use(cookieParser());
 
@@ -55,16 +55,19 @@ const urlDatabase = {
 app.get("/urls", (req, res) => {
   //const templateVars = { urls: urlDatabase };
   const currentUser = req.cookies["user_id"];
+  if(!currentUser) {
+    return res.status(401).send("log in or register!");
+  }
  
   //console.log(currentUser);
   //templateVars.user = currentUser;
   const templateVars = {
-    urls: urlDatabase,
+    urls:  urlsForUser(urlDatabase, currentUser),
     users: users,
     registeredUser: users[currentUser]
     
   };
-  
+  console.log(templateVars);
   res.render("urls_index", templateVars);
 });
 
@@ -274,7 +277,7 @@ if (!email ||!password) {
   return res.status(400).send("Wrong password or email!");
 }
  if (emailExist) {
-  return res.status(400).send("email already exist!");
+  return res.status(400).send("<h3>email already exist!</h3><a href='/login'>Try logging in!</a>");
  }
 
  if(!emailExist) {
