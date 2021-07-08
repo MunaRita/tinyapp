@@ -77,12 +77,14 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.post("urls/new", (req, res) => {
+
   res.redirect("urls");
 });
 
 app.post("/urls", (req, res) => {
   console.log(req.body);  // Log the POST request body to the console
-
+const currentUser = req.cookies["user_id"];
+if(currentUser) {
   // Server generate a new shortURL and saves it to the urlDatabase.
   let key = generateRandomString();
   urlDatabase[key] = req.body.longURL
@@ -97,6 +99,11 @@ app.post("/urls", (req, res) => {
   // Redirect After Form Submission
   //res.redirect("/urls");
   res.redirect(`/urls/${key}`);
+  
+} else {
+  res.send("<h3>You must be logged in!</h3><a href='/login'>Try logging in!</a>");
+}
+
 
   //res.send("Ok");         // Respond with 'Ok' (we will replace this)
 });
