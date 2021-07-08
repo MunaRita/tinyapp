@@ -9,14 +9,24 @@ const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
-
-
-
 // function to generate random words
 function generateRandomString() {
   let key = Math.random().toString(36).substr(2,6);
   return key;
-}
+};
+ 
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+};
 
 app.set("view engine", "ejs");  // tells the Express app to use EJS as its templating engine.
 
@@ -36,12 +46,15 @@ const urlDatabase = {
 
 app.get("/urls", (req, res) => {
   //const templateVars = { urls: urlDatabase };
-  const currentUser = req.cookies["username"];
-  console.log(currentUser);
+  const currentUser = req.cookies["user_Id"];
+ 
+  //console.log(currentUser);
   //templateVars.user = currentUser;
   const templateVars = {
     urls: urlDatabase,
-    user: currentUser
+    users: users,
+    registeredUser: currentUser
+    
   };
   
   res.render("urls_index", templateVars);
@@ -49,11 +62,14 @@ app.get("/urls", (req, res) => {
 
 // Request a new url form
 app.get("/urls/new", (req, res) => {
-  const currentUser = req.cookies["username"];
+  const currentUser = req.cookies["user_id"];
+  //const email = req.body.email;
   //console.log(currentUser);
   const templateVars = {
     urls: urlDatabase,
-    user: currentUser
+    registeredUser: currentUser,
+    users: users,
+    //email: email
   };
   res.render("urls_new", templateVars);    // server finds the url_new template, generates the html and sends it back to the browser
 });
@@ -111,12 +127,15 @@ app.get('/urls/:shortURL', function(req, res) {
   //console.log(urlDatabase);
   //res.send(req.params);
 
-  const currentUser = req.cookies["username"];
+  const currentUser = req.cookies["user_id"];
+  //const email = req.body.email;
   const templateVars = {
     shortURL: shortURL, 
     longURL: urlDatabase[shortURL],
     //urls: urlDatabase,
-    user: currentUser
+    registeredUser: currentUser,
+    users:users,
+    //email:email
   };
 
   res.render("urls_show", templateVars); // browser renders the html received from the server
@@ -135,7 +154,6 @@ app.post('/urls/:shortURL', (req, res) => {
 // });
 
 // Delete
-
 app.post("/urls/:shortURL/delete", (req, res) => {
   const key = req.params.shortURL;
   console.log(key);
@@ -155,17 +173,50 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 //   res.send(`a = ${a}`);
 //  });
 
+// login
 app.post("/login", (req, res) => {
-  res.cookie('username', req.body.username);
+  const userID = generateRandomString();
+  res.cookie('user_id', userID);
+  //const email = req.body.email;
   res.redirect("/urls");
 
 });
 
+//logout
 app.post("/logout", (req, res) => {
-  res.clearCookie('username');
+  res.clearCookie('user_id');
   res.redirect("/urls");
 })
 
+app.get("/register", (req, res) => {
+  const currentUser = req.cookies["user_id"];
+  //const email = email;
+  const templateVars = {
+    registeredUser: currentUser,
+    users:users,
+    //email: email
+  };
+  //console.log(currentUser);
+  //console.log("register");
+  res.render("register", templateVars);
+});
+
+app.post("/register", (req, res) => {
+  const userID = generateRandomString();
+  const email = req.body.email;
+  const password = req.body.password;
+  //const user = {};
+  users[userID] = {
+    id: userID,
+    email: email,
+    password: password
+  };
+  //console.log("users:", users);
+  res.cookie('user_id', userID);
+  res.redirect("/urls");
+ 
+  //req.cookies("username")
+})
 
 
 
