@@ -48,14 +48,14 @@ const urlDatabase = {
 
 app.get("/urls", (req, res) => {
   //const templateVars = { urls: urlDatabase };
-  const currentUser = req.cookies["user_Id"];
+  const currentUser = req.cookies["user_id"];
  
   //console.log(currentUser);
   //templateVars.user = currentUser;
   const templateVars = {
     urls: urlDatabase,
     users: users,
-    registeredUser: currentUser
+    registeredUser: users[currentUser]
     
   };
   
@@ -69,7 +69,7 @@ app.get("/urls/new", (req, res) => {
   //console.log(currentUser);
   const templateVars = {
     urls: urlDatabase,
-    registeredUser: currentUser,
+    registeredUser: users[currentUser],
     users: users,
     //email: email
   };
@@ -135,7 +135,7 @@ app.get('/urls/:shortURL', function(req, res) {
     shortURL: shortURL, 
     longURL: urlDatabase[shortURL],
     //urls: urlDatabase,
-    registeredUser: currentUser,
+    registeredUser: users[currentUser],
     users:users,
     //email:email
   };
@@ -176,14 +176,14 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 //  });
 
 
-// GET /login endpoint that responds with the new login form template
+//GET /login endpoint that responds with the new login form template
 app.get("/login", (req, res) => {
    const currentUser = req.cookies["user_id"];
   // const email = req.body.email;
   // const password = req.body.password;
   
   const templateVars = {
-    registeredUser: currentUser
+    registeredUser: users[currentUser]
     // email: email,
     // password: password
     //users:users
@@ -197,6 +197,21 @@ app.get("/login", (req, res) => {
 // login
 app.post("/login", (req, res) => {
   const userID = generateRandomString();
+  const email = req.body.email;
+  const password = req.body.password;
+  const emailExist = emailLookUp(users, email);
+  
+if(password.length === 0 || email.length === 0) {
+  return res.status(403).send("invalid email or password");
+
+} else if (!emailExist)  {
+  return res.status(403).send("email does not exist!");
+
+} else if (emailExist && password !== emailExist.password)  {
+  return res.status(403).send("wrong password!");
+
+} 
+
   res.cookie('user_id', userID);
   //const email = req.body.email;
   res.redirect("/urls");
@@ -215,7 +230,7 @@ app.get("/register", (req, res) => {
   const password = req.body.password;
   
   const templateVars = {
-    registeredUser: currentUser,
+    registeredUser: users[currentUser],
     email: email,
     password: password
     //users:users,
@@ -232,6 +247,7 @@ app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const emailExist = emailLookUp(users, email);
+
 if (!email ||!password) {
   return res.status(400).send("Wrong password or email!");
 }
