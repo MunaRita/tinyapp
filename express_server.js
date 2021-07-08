@@ -1,7 +1,8 @@
 const express = require("express");
-const  cookieParser = require('cookie-parser')
+const  cookieParser = require('cookie-parser');
+const { emailLookUp } = require('./helpers');
 const app = express();
-app.use(cookieParser())
+app.use(cookieParser());
 
 const PORT = 8080; // default port 8080
 
@@ -27,6 +28,7 @@ const users = {
     password: "dishwasher-funk"
   }
 };
+
 
 app.set("view engine", "ejs");  // tells the Express app to use EJS as its templating engine.
 
@@ -190,11 +192,15 @@ app.post("/logout", (req, res) => {
 
 app.get("/register", (req, res) => {
   const currentUser = req.cookies["user_id"];
-  //const email = email;
+  const email = req.body.email;
+  const password = req.body.password;
+  
   const templateVars = {
     registeredUser: currentUser,
-    users:users,
-    //email: email
+    email: email,
+    password: password
+    //users:users,
+    
   };
   //console.log(currentUser);
   //console.log("register");
@@ -203,23 +209,54 @@ app.get("/register", (req, res) => {
 
 app.post("/register", (req, res) => {
   const userID = generateRandomString();
+  
   const email = req.body.email;
   const password = req.body.password;
-  //const user = {};
+  const emailExist = emailLookUp(users, email);
+if (!email ||!password) {
+  return res.status(404).send("Wrong password or email!");
+}
+ if (emailExist) {
+  return res.status(404).send("email already exist!");
+ }
+
+ if(!emailExist) {
   users[userID] = {
     id: userID,
     email: email,
     password: password
   };
-  //console.log("users:", users);
+ }
   res.cookie('user_id', userID);
   res.redirect("/urls");
- 
+  //console.log("users:", users);
   //req.cookies("username")
-})
+});
+
+app.get("/login", (req, res) => {
+  const currentUser = req.cookies["user_id"];
+  const email = req.body.email;
+  const password = req.body.password;
+  
+  const templateVars = {
+    registeredUser: currentUser,
+    email: email,
+    password: password
+    //users:users,
+    
+  };
+  //console.log(currentUser);
+  //console.log("register");
+  res.render("login", templateVars);
+});
 
 
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+
+
+
+
+
