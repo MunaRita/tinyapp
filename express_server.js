@@ -175,6 +175,25 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 //   res.send(`a = ${a}`);
 //  });
 
+
+// GET /login endpoint that responds with the new login form template
+app.get("/login", (req, res) => {
+   const currentUser = req.cookies["user_id"];
+  // const email = req.body.email;
+  // const password = req.body.password;
+  
+  const templateVars = {
+    registeredUser: currentUser
+    // email: email,
+    // password: password
+    //users:users
+    
+  };
+  //console.log(currentUser);
+  //console.log("register");
+  res.render("login", templateVars);
+});
+
 // login
 app.post("/login", (req, res) => {
   const userID = generateRandomString();
@@ -214,10 +233,10 @@ app.post("/register", (req, res) => {
   const password = req.body.password;
   const emailExist = emailLookUp(users, email);
 if (!email ||!password) {
-  return res.status(404).send("Wrong password or email!");
+  return res.status(400).send("Wrong password or email!");
 }
  if (emailExist) {
-  return res.status(404).send("email already exist!");
+  return res.status(400).send("email already exist!");
  }
 
  if(!emailExist) {
@@ -233,22 +252,7 @@ if (!email ||!password) {
   //req.cookies("username")
 });
 
-app.get("/login", (req, res) => {
-  const currentUser = req.cookies["user_id"];
-  const email = req.body.email;
-  const password = req.body.password;
-  
-  const templateVars = {
-    registeredUser: currentUser,
-    email: email,
-    password: password
-    //users:users,
-    
-  };
-  //console.log(currentUser);
-  //console.log("register");
-  res.render("login", templateVars);
-});
+
 
 
 

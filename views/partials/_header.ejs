@@ -8,6 +8,7 @@
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
+       
       </div>     
     </div>
    
@@ -26,14 +27,14 @@
          </form>
         </div>
          <% } else {%>
-          <form class="form-inline" method="POST" action="/login">
+          
 
-         <div>
-          <a><input style="margin:5px;" class="form-control" type="text" name="user" placeholder="User_id"></a>
-          <a> <button style="margin:5px;" type="submit" class="btn btn-outline-dark">Login</button> </a>
-         </div>
+         
+          <a class="navbar-brand" href="/login"> Login </a>
+          <a class="navbar-brand" href="/register"> Register </a>
+         
        
-      </form>
+      
        <%}%>
       </div> 
     
