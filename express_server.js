@@ -1,6 +1,7 @@
 const express = require("express");
 const  cookieParser = require('cookie-parser');
 const { emailLookUp,  urlsForUser } = require('./helpers');
+const bcrypt = require('bcrypt');
 const app = express();
 app.use(cookieParser());
 
@@ -240,6 +241,7 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const emailExist = emailLookUp(users, email);
+  const hashedPassword = bcrypt.hashSync(password, 10); // modified by me for bcrypt
   
   if (password.length === 0 || email.length === 0) {
     return res.status(403).send("invalid email or password");
@@ -247,16 +249,18 @@ app.post("/login", (req, res) => {
   } else if (!emailExist)  {
     return res.status(403).send("<h3>email does not exist!</h3><a href='/register'>Try Registering!</a>");
 
-  } else if (emailExist && password !== emailExist.password)  {
+  } else if (emailExist && bcrypt.compareSync(emailExist.password, hashedPassword))  { // modified by me for bcrypt
     return res.status(403).send("wrong password!");
 
   }
   const userID = emailExist.id;
   res.cookie('user_id', userID);
+  console.log(users[userID]);
   //const email = req.body.email;
   res.redirect("/urls");
 
 });
+
 
 //logout
 app.post("/logout", (req, res) => {
@@ -266,19 +270,20 @@ app.post("/logout", (req, res) => {
 
 app.get("/register", (req, res) => {
   const currentUser = req.cookies["user_id"];
-  const email = req.body.email;
-  const password = req.body.password;
+  //const email = req.body.email;
+  //const password = req.body.password;
+  //const hashedPassword = bcrypt.hashSync(password, 10);
   
   const templateVars = {
     registeredUser: users[currentUser],
-    email: email,
-    password: password
+    //email: email,
+    //password: hashedPassword  // changed by me for bcrypt
     //users:users,
     
   };
   //console.log(currentUser);
   //console.log("register");
-  res.render("register", templateVars);
+  res.render("register",templateVars);
 });
 
 app.post("/register", (req, res) => {
@@ -286,11 +291,12 @@ app.post("/register", (req, res) => {
   
   const email = req.body.email;
   const password = req.body.password;
+  const hashedPassword = bcrypt.hashSync(password, 10);
   const emailExist = emailLookUp(users, email);
 
-  if (!email || !password) {
-    return res.status(400).send("Wrong password or email!");
-  }
+  // if (!email || bcrypt.compareSync(password, hashedPassword)) { // modified by me for bcrypt
+  //   return res.status(400).send("Wrong password or email!");
+  // }
   if (emailExist) {
     return res.status(400).send("<h3>email already exist!</h3><a href='/login'>Try logging in!</a>");
   }
@@ -299,7 +305,7 @@ app.post("/register", (req, res) => {
     users[userID] = {
       id: userID,
       email: email,
-      password: password
+      password: hashedPassword // modified by me for bcrypt
     };
   }
   res.cookie('user_id', userID);
