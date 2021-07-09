@@ -1,6 +1,6 @@
-const emailLookUp = function(users, useremail) {
+const getUserByEmail = function(userEmail, users, ) {
   for (let user in users) {
-    if (users[user].email === useremail) {
+    if (users[user].email === userEmail) {
       return users[user];
     } 
 } return null;
@@ -23,7 +23,7 @@ return urlsObj;
 
 
 module.exports = { 
-  emailLookUp,
+  getUserByEmail,
   urlsForUser 
  };
 

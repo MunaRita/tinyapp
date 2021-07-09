@@ -1,7 +1,7 @@
 const express = require("express");
 const cookieSession = require('cookie-session');
 const  cookieParser = require('cookie-parser'); // removed before since we now use session
-const { emailLookUp,  urlsForUser } = require('./helpers');
+const { getUserByEmail,  urlsForUser } = require('./helpers');
 const bcrypt = require('bcrypt');
 
 const salt = bcrypt.genSaltSync(10);
@@ -75,7 +75,7 @@ app.get("/urls", (req, res) => {
   const templateVars = {
     urls:  urlsForUser(urlDatabase, currentUser),
     users: users,
-    registeredUser: users[currentUser]
+    registeredUser: users[currentUser] //=> removed since it prints undefined
     
   };
   console.log(templateVars);
@@ -102,7 +102,7 @@ app.post("urls/new", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body);  // Log the POST request body to the console
+  //console.log(req.body);  // Log the POST request body to the console
   const currentUser = req.session["user_id"]; // changed cookie to session
   if (currentUser) {
   // Server generate a new shortURL and saves it to the urlDatabase.
@@ -250,7 +250,7 @@ app.post("/login", (req, res) => {
   
   const email = req.body.email;
   const password = req.body.password;
-  const emailExist = emailLookUp(users, email);
+  const emailExist = getUserByEmail(email, users);
   const hashedPassword = bcrypt.hashSync(password, salt); // modified by me for bcrypt
   
   if (password.length === 0 || email.length === 0) {
@@ -303,7 +303,7 @@ app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const hashedPassword = bcrypt.hashSync(password, salt);
-  const emailExist = emailLookUp(users, email);
+  const emailExist = getUserByEmail(email, users);
 
   // if (!email || bcrypt.compareSync(password, hashedPassword)) { // modified by me for bcrypt
   //   return res.status(400).send("Wrong password or email!");
