@@ -1,11 +1,21 @@
 const express = require("express");
-const  cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session');
+const  cookieParser = require('cookie-parser'); // removed before since we now use session
 const { emailLookUp,  urlsForUser } = require('./helpers');
 const bcrypt = require('bcrypt');
+
+const salt = bcrypt.genSaltSync(10);
+
 const app = express();
-app.use(cookieParser());
+
+app.use(cookieParser()); //removed before since we now use session
 
 const PORT = 8080; // default port 8080
+
+app.use(cookieSession({
+  name: "session",
+  keys: ["secretsecretIgotAsecret", "SuiteMadameBlue"]
+}))
 
 // middleware to make the data readable
 const bodyParser = require("body-parser");
@@ -55,7 +65,7 @@ const urlDatabase = {
 
 app.get("/urls", (req, res) => {
   //const templateVars = { urls: urlDatabase };
-  const currentUser = req.cookies["user_id"];
+  const currentUser = req.session["user_id"]; // changed from cookie to session
   // if(!currentUser) {
   //   return res.status(401).send("log in or register!");
   // }
@@ -74,7 +84,7 @@ app.get("/urls", (req, res) => {
 
 // Request a new url form
 app.get("/urls/new", (req, res) => {
-  const currentUser = req.cookies["user_id"];
+  const currentUser = req.session["user_id"]; // changed from cookie to session
   //const email = req.body.email;
   //console.log(currentUser);
   const templateVars = {
@@ -93,7 +103,7 @@ app.post("urls/new", (req, res) => {
 
 app.post("/urls", (req, res) => {
   console.log(req.body);  // Log the POST request body to the console
-  const currentUser = req.cookies["user_id"];
+  const currentUser = req.session["user_id"]; // changed cookie to session
   if (currentUser) {
   // Server generate a new shortURL and saves it to the urlDatabase.
     let key = generateRandomString();
@@ -147,7 +157,7 @@ app.get('/urls/:shortURL', function(req, res) {
   //console.log(urlDatabase);
   //res.send(req.params);
 
-  const currentUser = req.cookies["user_id"];
+  const currentUser = req.session["user_id"]; //changed cookie to session
   //const email = req.body.email;
   const templateVars = {
     shortURL: shortURL,
@@ -165,7 +175,7 @@ app.get('/urls/:shortURL', function(req, res) {
 app.post('/urls/:shortURL', (req, res) => {
   const key = req.params.shortURL;
   const urlOwner = urlDatabase[key].userID;
-  const currentUser = req.cookies["user_id"];
+  const currentUser = req.session["user_id"]; //changed cookie to session
   if (currentUser === urlOwner) {
     // console.log("this is param", req.params.shortURL);
   // console.log("this is body", req.body);
@@ -191,7 +201,7 @@ app.post('/urls/:shortURL', (req, res) => {
 // Delete
 app.post("/urls/:shortURL/delete", (req, res) => {
   const key = req.params.shortURL;
-  const currentUser = req.cookies["user_id"];
+  const currentUser = req.session["user_id"]; //changed cookie to session
   const urlOwner = urlDatabase[key].userID;
   if (currentUser === urlOwner) {
     //console.log(key);
@@ -219,7 +229,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 //GET /login endpoint that responds with the new login form template
 app.get("/login", (req, res) => {
-  const currentUser = req.cookies["user_id"];
+  const currentUser = req.session["user_id"];
   // const email = req.body.email;
   // const password = req.body.password;
   
@@ -241,7 +251,7 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const emailExist = emailLookUp(users, email);
-  const hashedPassword = bcrypt.hashSync(password, 10); // modified by me for bcrypt
+  const hashedPassword = bcrypt.hashSync(password, salt); // modified by me for bcrypt
   
   if (password.length === 0 || email.length === 0) {
     return res.status(403).send("invalid email or password");
@@ -254,8 +264,9 @@ app.post("/login", (req, res) => {
 
   }
   const userID = emailExist.id;
-  res.cookie('user_id', userID);
-  console.log(users[userID]);
+  //res.session('user_id', userID);  //changed cookie to session
+  req.session["user_id"] = userID;
+  //console.log(users[userID]);
   //const email = req.body.email;
   res.redirect("/urls");
 
@@ -264,12 +275,12 @@ app.post("/login", (req, res) => {
 
 //logout
 app.post("/logout", (req, res) => {
-  res.clearCookie('user_id');
+  req.session["user_id"] = null;
   res.redirect("/urls");
 });
 
 app.get("/register", (req, res) => {
-  const currentUser = req.cookies["user_id"];
+  const currentUser = req.cookies["user_id"];  //changed cookie to session
   //const email = req.body.email;
   //const password = req.body.password;
   //const hashedPassword = bcrypt.hashSync(password, 10);
@@ -291,7 +302,7 @@ app.post("/register", (req, res) => {
   
   const email = req.body.email;
   const password = req.body.password;
-  const hashedPassword = bcrypt.hashSync(password, 10);
+  const hashedPassword = bcrypt.hashSync(password, salt);
   const emailExist = emailLookUp(users, email);
 
   // if (!email || bcrypt.compareSync(password, hashedPassword)) { // modified by me for bcrypt
@@ -308,7 +319,8 @@ app.post("/register", (req, res) => {
       password: hashedPassword // modified by me for bcrypt
     };
   }
-  res.cookie('user_id', userID);
+  req.session["user_id"] = userID;
+  //res.cookies('user_id', userID);  //changed cookie to session
   res.redirect("/urls");
   //console.log("users:", users);
   //req.cookies("username")
