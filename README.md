@@ -8,6 +8,8 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 !["Registration page"](https://github.com/MunaRita/tinyapp/blob/master/docs/register-page.png)
 
+!["Login page"](https://github.com/MunaRita/tinyapp/blob/master/docs/login-page.png)
+
 !["Create new url page"](https://github.com/MunaRita/tinyapp/blob/master/docs/creat%20new%20url.png)
 
 !["Edit url page"](https://github.com/MunaRita/tinyapp/blob/master/docs/Edit%20page.png)
