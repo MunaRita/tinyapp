@@ -14,7 +14,7 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 !["Non-registered user tries to sign in"](https://github.com/MunaRita/tinyapp/blob/master/docs/email%20does%20not%20exist%20register.png)
 
-!["Registered user tries to register with email that is already regsitered"](https://github.com/MunaRita/tinyapp/blob/master/docs/email-does-not-exist.png)
+!["Registered user tries to register with email that is already regsitered"](https://github.com/MunaRita/tinyapp/blob/master/docs/email-exist-try-log-in.png)
 
 ## Dependencies
 
