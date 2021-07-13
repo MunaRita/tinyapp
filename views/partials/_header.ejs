@@ -13,12 +13,14 @@
     </div>
    
       <div class="navbar-nav">
-       <% if(registeredUser) { %>
+  
+        
+       <% if(user) { %>
 
          <div class="form-inline">
 
          <span style="margin:5px;"> 
-          Logged In As: <%= registeredUser.email %>!
+          Logged In As: <%= user.email %>!
          </span>
 
          <form class="form-inline" action="/logout" method="POST">
